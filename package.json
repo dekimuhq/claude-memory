@@ -1,0 +1,30 @@
+{
+  "name": "@dekimuhq/claude-memory",
+  "version": "0.1.0",
+  "description": "File-based memory for Claude Code that decays — stale facts surface themselves for human review, nothing is auto-deleted.",
+  "type": "module",
+  "license": "MIT",
+  "homepage": "https://github.com/dekimuhq/claude-memory",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dekimuhq/claude-memory.git"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "agent",
+    "memory",
+    "skill",
+    "weibull",
+    "confidence-decay"
+  ],
+  "scripts": {
+    "test": "node --test skill/scripts/test/*.test.mjs"
+  },
+  "files": [
+    "skill",
+    "hooks",
+    "SCHEMA.md",
+    "DESIGN.md"
+  ]
+}
