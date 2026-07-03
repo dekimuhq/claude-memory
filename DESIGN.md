@@ -103,11 +103,3 @@ The time-decay and supersession ideas were drawn — reimplemented inward, not
 copied — from the `weibull` and `veracity-consolidation` modules of the open
 `mnemopi` / oh-my-pi work. Credit where due; the design choices above (discrete
 bands, no auto-write, flat-file store) are this project's own.
-
-## Maintenance
-
-This repo is an extraction of an engine that runs daily in a private harness. A
-weekly CI job there byte-compares the canonical `lib.mjs` against this repo's copy
-(header/CLI shells excluded — those legitimately diverge for path portability), so
-the decay math cannot silently drift between the two. Algorithm changes land
-upstream first and are ported here once they've survived real use.
