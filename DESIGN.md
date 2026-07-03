@@ -88,6 +88,14 @@ not by a similarity engine. The flagger surfaces it; the human gates the delete.
 - **SQLite store / embedding clustering / LLM "mental-model" compression.** Out of
   scope — overkill for a few-hundred-file flat store. The headline "compress a
   session into a mental model" is just an LLM summarization step.
+- **A cross-session recurrence ledger.** This one wasn't rejected on paper — it was
+  field-tested. A JSONL side-ledger counting "codifiable pattern seen ≥2× across
+  sessions" shipped alongside this engine and was retired 13 days later with **one
+  observation and zero promotions**: the session-end logging step it depended on
+  almost never fired in real use. The lesson generalizes — any memory feature that
+  relies on the agent *remembering to do bookkeeping* will silently under-fire.
+  Surfacing must be computed from what already exists on disk (as the decay flagger
+  does), never from a side-channel the agent has to feed.
 
 ## Provenance
 
@@ -95,3 +103,11 @@ The time-decay and supersession ideas were drawn — reimplemented inward, not
 copied — from the `weibull` and `veracity-consolidation` modules of the open
 `mnemopi` / oh-my-pi work. Credit where due; the design choices above (discrete
 bands, no auto-write, flat-file store) are this project's own.
+
+## Maintenance
+
+This repo is an extraction of an engine that runs daily in a private harness. A
+weekly CI job there byte-compares the canonical `lib.mjs` against this repo's copy
+(header/CLI shells excluded — those legitimately diverge for path portability), so
+the decay math cannot silently drift between the two. Algorithm changes land
+upstream first and are ported here once they've survived real use.

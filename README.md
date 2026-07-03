@@ -35,8 +35,10 @@ Plus structured **supersession**: when a newer memory overtakes an old one, the 
 one gets a `superseded_by: <slug>` pointer instead of vanishing — so the review tool
 can say "this was overtaken, confirm the delete" with a trail.
 
-See [DESIGN.md](DESIGN.md) for the calibration math and the choices we deliberately
-rejected (continuous Bayesian scoring, SQLite, embeddings, auto-write).
+See [DESIGN.md](DESIGN.md) for the calibration math, the choices we deliberately
+rejected (continuous Bayesian scoring, SQLite, embeddings, auto-write), and one we
+field-tested and retired — a cross-session recurrence ledger that died of
+never-being-fed.
 
 ## Quickstart
 
