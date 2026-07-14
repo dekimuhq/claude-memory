@@ -90,7 +90,7 @@ the review when anything is flagged — zero token cost when there's nothing to 
 | `skill/scripts/backfill.mjs` | one-time migration adding the confidence fields. |
 | `skill/SKILL.md` | the read-flag-act loop Claude follows. |
 | `hooks/session-nudge.mjs` | SessionStart nudge; silent when clean. |
-| [SCHEMA.md](SCHEMA.md) | the frontmatter contract + confidence bands + movement rules. |
+| [SCHEMA.md](SCHEMA.md) | the frontmatter contract + capture rules + confidence bands + movement rules. |
 | [DESIGN.md](DESIGN.md) | why it works this way; what it rejects. |
 
 ## The memory file format
@@ -113,6 +113,11 @@ Keep replies short; lead with the answer.
 
 Only `feedback` and `project` memories decay. `user` and `reference` are stable
 facts — never flagged, never migrated.
+
+The decay engine only stays useful if the store is honest on the way *in*: one fact
+per file, dedupe against existing `description:` lines before writing, never store
+what git/code already records, and capture durable facts as one approval batch at
+session end. Those capture rules live in [SCHEMA.md § Writing a memory](SCHEMA.md).
 
 ## Run the tests
 

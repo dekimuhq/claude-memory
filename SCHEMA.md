@@ -6,7 +6,7 @@ optional `MEMORY.md` index. Each file has YAML frontmatter and a short body.
 ```markdown
 ---
 name: <short-kebab-case-slug>
-description: <one-line summary — used to judge relevance during recall>
+description: <one-line summary — used to decide relevance during recall>
 type: user | feedback | project | reference
 ---
 
@@ -25,6 +25,34 @@ Link related memories with [[their-name]].>
 
 `user` and `reference` are stable facts: they are never flagged, never decay,
 and never carry the confidence layer below.
+
+## Writing a memory (capture)
+
+The review engine below only earns its keep if the store stays honest on the way
+*in*. Write a memory when something durable changes that a future session needs and
+can't re-derive from the code or git history:
+
+- a user preference, or a correction that should not recur → `feedback`
+- a decision or constraint with lasting impact, not visible in the code → `project`
+- who the user is → `user` · a pointer to an external resource → `reference`
+
+Before you save, four rules keep the pile from rotting:
+
+1. **Dedupe first.** Scan the existing `description:` lines. If one already covers
+   the fact, **update that file** — don't add a near-duplicate.
+2. **Don't store what's already recorded.** Code structure, past fixes, git history
+   are not memories. If asked to "remember" one, capture what was *non-obvious* about
+   it, not the fact itself. Skip anything that only matters to the current conversation.
+3. **One fact per file.** Name it `<type>_<slug>.md`. For `feedback`/`project`, seed
+   `confidence` per the bands below and follow the fact with **Why:** / **How to apply:**
+   lines; link related memories with `[[their-slug]]`.
+4. **Index it.** Add a one-line pointer to `MEMORY.md` — never the body, never the
+   confidence fields.
+
+A good cadence is **session end**: scan for durable facts, dedupe against existing
+descriptions, then present them as **one approval batch** (each with its confidence
+band + a one-line reason) instead of interrupting mid-task. Writing is human-gated
+the same way deletion is.
 
 ## Confidence layer (feedback + project only)
 
