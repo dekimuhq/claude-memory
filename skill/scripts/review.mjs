@@ -15,7 +15,13 @@ const FLAG_FLOOR = 0.3;
 export function flagDir(dir, todayISO) {
   const out = { decayed: [], lowConfidence: [], superseded: [], needsBackfill: [] };
   for (const name of fs.readdirSync(dir)) {
-    if (!name.endsWith('.md')) continue;
+    // `.sync-conflict-` marks a file-sync conflict copy (Syncthing's naming, and
+    // the shape most sync tools use). It is debris, not a memory: it carries a
+    // stale confidence and an old last_confirmed, so scoring it double-counts the
+    // canonical entry it shadows — one real memory, two flags, and the newer file
+    // is not necessarily the one that wins the sort. Skip it and resolve the
+    // conflict by hand.
+    if (!name.endsWith('.md') || name.includes('.sync-conflict-')) continue;
     const file = path.join(dir, name);
     const memo = parseMemo(fs.readFileSync(file, 'utf8'));
     if (memo.type !== 'feedback' && memo.type !== 'project') continue;
