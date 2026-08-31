@@ -34,7 +34,8 @@ export function flagDir(dir, todayISO) {
     if (memo.confidence <= FLAG_FLOOR) {
       out.lowConfidence.push({ file, ...memo });
     } else {
-      const eff = effectiveConfidence(memo, todayISO);
+      // `file` rides along so lib can derive the slug for cohort jitter without a signature change.
+      const eff = effectiveConfidence({ ...memo, file }, todayISO);
       if (eff !== null && eff <= FLAG_FLOOR) {
         const age = memo.last_confirmed ? ageInDays(memo.last_confirmed, todayISO) : null;
         out.decayed.push({ file, age, effective: Number(eff.toFixed(3)), ...memo });

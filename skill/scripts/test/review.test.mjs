@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import fs from 'node:fs';
-import { parseMemo, ageInDays, survival, effectiveConfidence } from '../lib.mjs';
+import { parseMemo, ageInDays, survival, effectiveConfidence, jitterDays, slugOf } from '../lib.mjs';
 
 const FIX = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
 const read = (f) => fs.readFileSync(path.join(FIX, f), 'utf8');
@@ -88,4 +88,61 @@ test('flagDir is read-only — fixture files are untouched', () => {
   for (const [f, content] of before) {
     assert.equal(read(f), content, `${f} must not be modified by flagDir`);
   }
+});
+
+// ── LOCKED band never decays (added 2026-08-31) ────────────────────────────
+test('a 0.9 LOCKED entry never decays, at any age', () => {
+  for (const age of ['2026-07-12', '2025-01-01', '2020-01-01']) {
+    for (const type of ['project', 'feedback']) {
+      const eff = effectiveConfidence({ type, confidence: 0.9, last_confirmed: age }, '2026-08-31');
+      assert.equal(eff, 0.9, `${type} @0.9 must not decay (last_confirmed ${age})`);
+    }
+  }
+});
+
+// Negative control: without this the exemption could be swallowing everything.
+test('the LOCKED exemption is narrow — 0.7 still decays', () => {
+  const eff = effectiveConfidence(
+    { type: 'project', confidence: 0.7, last_confirmed: '2026-01-01', file: 'x.md' }, '2026-08-31');
+  assert.ok(eff < 0.7, 'a 0.7 project entry must still decay');
+});
+
+// ── cohort jitter (added 2026-08-31) ───────────────────────────────────────
+test('jitterDays is deterministic and inside [0, spread)', () => {
+  for (const s of ['project_alpha', 'feedback_beta', 'x', '']) {
+    const a = jitterDays(s, 28), b = jitterDays(s, 28);
+    assert.equal(a, b, 'same slug must give the same offset on every run and machine');
+    assert.ok(a >= 0 && a < 28, `offset ${a} out of range for "${s}"`);
+  }
+});
+
+test('jitter spreads a same-stamp cohort instead of firing it at once', () => {
+  // The real failure: 50 entries shared last_confirmed 2026-07-12 and all crossed
+  // the floor on the same day. Distinct slugs must land on distinct effective ages.
+  const stamp = '2026-07-12';
+  const effs = new Set(
+    Array.from({ length: 40 }, (_, i) =>
+      effectiveConfidence(
+        { type: 'project', confidence: 0.7, last_confirmed: stamp, file: `project_entry_${i}.md` },
+        '2026-08-31')));
+  assert.ok(effs.size > 5, `cohort collapsed to ${effs.size} distinct values — jitter is not spreading it`);
+});
+
+test('jitter only ever DELAYS a flag, never causes an early one', () => {
+  // Offset is subtractive, so effective age <= real age and survival >= unjittered.
+  const base = effectiveConfidence(
+    { type: 'project', confidence: 0.7, last_confirmed: '2026-07-12' }, '2026-08-31'); // no file -> no jitter
+  for (let i = 0; i < 30; i++) {
+    const j = effectiveConfidence(
+      { type: 'project', confidence: 0.7, last_confirmed: '2026-07-12', file: `s_${i}.md` }, '2026-08-31');
+    assert.ok(j >= base, `slug s_${i} decayed FASTER than unjittered — jitter must not pull a flag forward`);
+  }
+});
+
+test('slugOf takes a path or a bare name, and survives null', () => {
+  assert.equal(slugOf('/a/b/project_x.md'), 'project_x');
+  assert.equal(slugOf('project_x.md'), 'project_x');
+  assert.equal(slugOf('project_x'), 'project_x');
+  assert.equal(slugOf(null), null);
+  assert.equal(jitterDays(null), 0, 'a memo with no file must simply not jitter');
 });
