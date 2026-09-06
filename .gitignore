@@ -1,3 +1,7 @@
 node_modules/
 *.log
 .DS_Store
+
+# Task worktrees (knowledge/worktree-discipline.md) — one `git add -A` from
+# being committed into the repo, one `git clean -fd` from being deleted.
+.worktrees/
