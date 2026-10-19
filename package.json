@@ -4,10 +4,14 @@
   "description": "File-based memory for Claude Code that decays — stale facts surface themselves for human review, nothing is auto-deleted.",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://github.com/dekimuhq/claude-memory",
+  "author": "Dekimu",
+  "homepage": "https://dekimu.com/open-source",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dekimuhq/claude-memory.git"
+    "url": "git+https://github.com/dekimuhq/claude-memory.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dekimuhq/claude-memory/issues"
   },
   "keywords": [
     "claude",
@@ -16,7 +20,8 @@
     "memory",
     "skill",
     "weibull",
-    "confidence-decay"
+    "confidence-decay",
+    "dekimu"
   ],
   "scripts": {
     "test": "node --test skill/scripts/test/*.test.mjs"
